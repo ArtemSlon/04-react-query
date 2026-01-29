@@ -21,6 +21,7 @@ export default function App() {
   data,
   isLoading,
   isError,
+  isSuccess,
 } = useQuery<MoviesResponse>({
   queryKey: ['movies', query, page],
   queryFn: () => fetchMovies(query, page),
@@ -28,14 +29,21 @@ export default function App() {
   placeholderData: (prev) => prev,
 });
  
+  const movies = data?.results ?? [];
+  const totalPages = data?.total_pages ?? 0;
+  
   useEffect(() => {
   if (isError) {
     toast.error("Something went wrong. Please try again.");
   }
-}, [isError]);
+  }, [isError]);
   
-  const movies = data?.results ?? [];
-  const totalPages = data?.total_pages ?? 0;
+  useEffect(() => {
+  if (isSuccess && movies.length === 0 && query !== '') {
+    toast("No movies found");
+  }
+}, [isSuccess, movies.length, query]);
+  
   
   const handleSearch = (newQuery: string) => {
     setQuery(newQuery)
